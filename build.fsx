@@ -72,10 +72,10 @@ let mutable dotnetExePath = "dotnet"
 
 let buildDir = "bin"
 let buildDirNet461 = buildDir @@ "net461"
-let buildDirNetCore = buildDir @@ "netcoreapp2.1"
+let buildDirNetCore = buildDir @@ "netcoreapp3.1"
 let buildDirBootstrapper = "bin_bootstrapper"
 let buildDirBootstrapperNet461 = buildDirBootstrapper @@ "net461"
-let buildDirBootstrapperNetCore = buildDirBootstrapper @@ "netcoreapp2.1"
+let buildDirBootstrapperNetCore = buildDirBootstrapper @@ "netcoreapp3.1"
 let tempDir = "temp"
 let buildMergedDir = buildDir @@ "merged"
 let paketFile = buildMergedDir @@ "paket.exe"
@@ -222,7 +222,7 @@ Target "Publish" (fun _ ->
     DotNetCli.Publish (fun c ->
         { c with
             Project = "src/Paket"
-            Framework = "netcoreapp2.1"
+            Framework = "netcoreapp3.1"
             Output = FullName (currentDirectory </> buildDirNetCore)
             ToolPath = dotnetExePath
         })
@@ -237,7 +237,7 @@ Target "Publish" (fun _ ->
     DotNetCli.Publish (fun c ->
         { c with
             Project = "src/Paket.Bootstrapper"
-            Framework = "netcoreapp2.1"
+            Framework = "netcoreapp3.1"
             Output = FullName (currentDirectory </> buildDirBootstrapperNetCore)
             ToolPath = dotnetExePath
         })
@@ -378,7 +378,7 @@ Target "SignAssemblies" (fun _ ->
     if Seq.length filesToSign < 3 then failwith "Didn't find files to sign"
 
     match getBuildParam "cert-pw" with
-    | pw when not (String.IsNullOrWhiteSpace pw) -> 
+    | pw when not (String.IsNullOrWhiteSpace pw) ->
         filesToSign
             |> Seq.iter (fun executable ->
                 let signtool = currentDirectory @@ "tools" @@ "SignTool" @@ "signtool.exe"
@@ -386,9 +386,9 @@ Target "SignAssemblies" (fun _ ->
                 let result =
                     ExecProcess (fun info ->
                         info.FileName <- signtool
-                        info.Arguments <- args) System.TimeSpan.MaxValue                    
+                        info.Arguments <- args) System.TimeSpan.MaxValue
                 if result <> 0 then failwithf "Error during signing %s with %s" executable pfx)
-    | _ -> failwith "PW for cert missing"            
+    | _ -> failwith "PW for cert missing"
 )
 
 Target "CalculateDownloadHash" (fun _ ->
